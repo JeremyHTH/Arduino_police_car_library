@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map For RobotEffects
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+tone_item	KEYWORD1
+led_item		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+library_set_up	KEYWORD2
+set_up_timer		KEYWORD2
+set_repeat_mode	KEYWORD2
+set_queue_mode	KEYWORD2
+add_tone			KEYWORD2
+add_led			KEYWORD2
+Move				KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+REPEAT_MODE	LITERAL1
+QUEUE_MODE		LITERAL1
+CAPACITY		LITERAL1
+
+ENABLE_BUZZER	LITERAL1
+ENABLE_LED		LITERAL1
