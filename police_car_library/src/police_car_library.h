@@ -10,13 +10,15 @@ extern "C" {
 // ===== Constants (mirrors your .cpp) =====
 #define REPEAT_MODE 0
 #define QUEUE_MODE  1
+#define CUSTOM_FUNCTION_MODE 2
 #define CAPACITY    70
 
-#define ENABLE_BUZZER 1
-#define ENABLE_LED    1
 
 
 // ===== Types =====
+typedef void (*custom_timer_function_callback)();
+
+
 typedef struct tone_item {
   uint16_t frequency;
   uint16_t duration_ms;
@@ -35,7 +37,7 @@ extern int Pin_Motor_2_Dir;
 extern int Pin_Buzzer;
 
 // ===== API Functions =====
-void library_set_up(void);
+void library_set_up(uint8_t timer_purpose_mode = REPEAT_MODE, uint8_t use_buzzer = 1, uint8_t use_led = 1);
 void set_up_timer(int index, int duration_ms);
 
 bool set_repeat_mode(void);

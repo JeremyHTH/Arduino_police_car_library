@@ -1,11 +1,6 @@
 #include "police_car_library.h"
 
-#define REPEAT_MODE 0
-#define QUEUE_MODE 1
-#define CAPACITY 70
 
-#define ENABLE_BUZZER 1
-#define ENABLE_LED 1
 
 
 
@@ -35,6 +30,8 @@ volatile uint8_t led_current_playing_index = 0;
 volatile unsigned long led_number_of_tick = 0;
 
 volatile int duration_ms_timer_1 = 1;
+volatile uint8_t enable_buzzer = 1;
+volatile uint8_t enable_led = 1;
 
 void set_up_timer(int index, int duration_ms)
 {
@@ -96,9 +93,15 @@ bool set_queue_mode()
   return true;
 }
 
+bool set_custom_function_mode()
+{
+  mode = CUSTOM_FUNCTION_MODE;
+  return true;
+}
+
 bool add_tone(uint16_t frequency, uint16_t duration_ms)
 {
-  if (duration_ms == 0)
+  if (duration_ms == 0 || !enable_buzzer)
   {
     return true;
   }
@@ -119,7 +122,7 @@ bool add_tone(uint16_t frequency, uint16_t duration_ms)
 
 bool add_led(bool LED_1, bool LED_2, bool LED_3, bool LED_4, bool LED_5 , bool LED_6, bool LED_7, bool LED_8, uint16_t duration_ms)
 {
-  if (duration_ms == 0)
+  if (duration_ms == 0 || !enable_led)
   {
     return true;
   }
@@ -153,69 +156,85 @@ ISR(TIMER1_COMPA_vect)
   led_number_of_tick++;
   tone_number_of_tick++;
 
-#if ENABLE_BUZZER
-  if (tone_count > 0 && tone_number_of_tick >= tone_buffer[tone_current_playing_index].duration_ms / duration_ms_timer_1)
+  if (mode == CUSTOM_FUNCTION_MODE)
   {
-    if (mode == QUEUE_MODE)
-    {
-      tone_head = (tone_head + 1) % CAPACITY;
-      tone_count--;
-      tone_current_playing_index = (tone_current_playing_index + 1) % CAPACITY;
-    }
-    else
-    {
-      tone_current_playing_index = (tone_current_playing_index + 1) % tone_tail;
-    }
-
-    if (tone_buffer[tone_current_playing_index].frequency == 0)
-    {
-      noTone(Pin_Buzzer);
-    }
-    else
-    {
-      tone(Pin_Buzzer, tone_buffer[tone_current_playing_index].frequency);
-      
-    }
-
-    tone_number_of_tick = 0;
+    return;
   }
-#endif
-
-#if ENABLE_LED
-  if (led_count > 0 && led_number_of_tick >= led_buffer[led_current_playing_index].duration_ms / duration_ms_timer_1)
+  else
   {
-    if (mode == QUEUE_MODE)
+    if (enable_buzzer && tone_count > 0 && tone_number_of_tick >= tone_buffer[tone_current_playing_index].duration_ms / duration_ms_timer_1)
     {
-      led_head = (led_head + 1) % CAPACITY;
-      led_count--;
-      led_current_playing_index = (led_current_playing_index + 1) % CAPACITY;
-    }
-    else
-    {
-      led_current_playing_index = (led_current_playing_index + 1) % led_tail;
+      if (mode == QUEUE_MODE)
+      {
+        tone_head = (tone_head + 1) % CAPACITY;
+        tone_count--;
+        tone_current_playing_index = (tone_current_playing_index + 1) % CAPACITY;
+      }
+      else
+      {
+        tone_current_playing_index = (tone_current_playing_index + 1) % tone_tail;
+      }
+
+      if (tone_buffer[tone_current_playing_index].frequency == 0)
+      {
+        noTone(Pin_Buzzer);
+      }
+      else
+      {
+        tone(Pin_Buzzer, tone_buffer[tone_current_playing_index].frequency);
+        
+      }
+
+      tone_number_of_tick = 0;
     }
 
-    for (int i = 0; i < 8; i++)
+
+
+    if (enable_led && led_count > 0 && led_number_of_tick >= led_buffer[led_current_playing_index].duration_ms / duration_ms_timer_1)
     {
-      digitalWrite(LED_PIN[i], led_buffer[led_current_playing_index].led_sequence & 1 << i);
-      // digitalWrite(LED_PIN[i], !digitalRead(LED_PIN[i]));
+      if (mode == QUEUE_MODE)
+      {
+        led_head = (led_head + 1) % CAPACITY;
+        led_count--;
+        led_current_playing_index = (led_current_playing_index + 1) % CAPACITY;
+      }
+      else
+      {
+        led_current_playing_index = (led_current_playing_index + 1) % led_tail;
+      }
+
+      for (int i = 0; i < 8; i++)
+      {
+        digitalWrite(LED_PIN[i], led_buffer[led_current_playing_index].led_sequence & 1 << i);
+        // digitalWrite(LED_PIN[i], !digitalRead(LED_PIN[i]));
+      }
+      led_number_of_tick = 0;
     }
-    led_number_of_tick = 0;
   }
-#endif  
+  
   
 
   
 }
 
-void library_set_up()
+void library_set_up(uint8_t timer_purpose_mode, uint8_t use_buzzer, uint8_t use_led)
 {
   //In the class
   Serial.begin(9600);
   Serial.println("==============================");
   Serial.println("Started");
+  Serial.print("use_buzzer: ");
+  Serial.println(use_buzzer);
+  Serial.print("use_led: ");
+  Serial.println(use_led);
+  Serial.print("mode: ");
+  Serial.println(timer_purpose_mode);
+
   tone_buffer = (tone_item*)malloc(sizeof(tone_item) * CAPACITY); 
   led_buffer = (led_item*)malloc(sizeof(led_item) * CAPACITY); 
+  enable_buzzer = use_buzzer;
+  enable_led = use_led; 
+  mode = timer_purpose_mode;
 }
 
 void Move(int left_speed, int right_speed, int duration_ms)

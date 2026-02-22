@@ -16,7 +16,7 @@
 
 void setup() {
 
-  library_set_up();
+  library_set_up(0, 1);
   
   pinMode(2, OUTPUT);
   pinMode(4, OUTPUT);
