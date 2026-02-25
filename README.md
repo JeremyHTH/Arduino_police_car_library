@@ -85,6 +85,8 @@ void library_set_up(
 - Allocates internal buffers (capacity `70` each for tone and LED).
 - Sets mode and enables/disables buzzer/LED processing.
 - If `debug_mode` is enabled, initializes serial output at `9600`.
+- In `REPEAT_MODE`/`QUEUE_MODE`, debug output is printed with labeled fields:
+  `led_seq=<value> led_duration_ms=<value> uptime_ms=<value> tone_freq_hz=<value> tone_duration_ms=<value>`
 
 ### Timer Setup
 
@@ -139,6 +141,8 @@ void Move(int left_speed, int right_speed, int duration_ms);
 
 - `examples/Repeating_Mode/Repeating_Mode.ino`
   - Demonstrates repeating tone + LED sequences.
+- `examples/Queue_Mode/Queue_Mode.ino`
+  - Demonstrates one-time FIFO playback in `QUEUE_MODE`.
 - `examples/Custom_Function_Mode/Custom_Function_Mode.ino`
   - Demonstrates callback-driven behavior in custom mode.
 
