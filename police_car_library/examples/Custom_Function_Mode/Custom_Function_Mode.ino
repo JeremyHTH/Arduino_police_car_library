@@ -25,7 +25,7 @@ void custom_timer_function_2()
 
 void setup() 
 {
-    library_set_up(CUSTOM_FUNCTION_MODE, 0, 1, 1);
+    library_set_up(CUSTOM_FUNCTION_MODE, 1, 1, 1);
     set_custom_function_mode(Blinking_LED);
 
     pinMode(2, OUTPUT);

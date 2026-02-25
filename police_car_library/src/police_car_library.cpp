@@ -168,15 +168,21 @@ bool add_led(bool LED_1, bool LED_2, bool LED_3, bool LED_4, bool LED_5 , bool L
 
 ISR(TIMER1_COMPA_vect) 
 {
-	if (enable_debug && mode != CUSTOM_FUNCTION_MODE)
-	{
-		Serial.print(led_buffer[led_current_playing_index].led_sequence);
-		Serial.print(" ");
-		Serial.print(led_buffer[led_current_playing_index].duration_ms); 
-		Serial.print(" ");
-		Serial.print(millis());
-		Serial.println();
-	}
+	// if (enable_debug && mode != CUSTOM_FUNCTION_MODE)
+	// {
+	// 	Serial.print("led_current_playing_index=");
+	// 	Serial.print(led_current_playing_index);
+	// 	Serial.print(" led_seq=");
+	// 	Serial.print(led_buffer[led_current_playing_index].led_sequence);
+	// 	Serial.print(" led_duration_ms=");
+	// 	Serial.print(led_buffer[led_current_playing_index].duration_ms);
+	// 	Serial.print(" tone_current_playing_index=");
+	// 	Serial.print(tone_current_playing_index);
+	// 	Serial.print(" tone_freq_hz=");
+	// 	Serial.print(tone_buffer[tone_current_playing_index].frequency);
+	// 	Serial.print(" tone_duration_ms=");
+	// 	Serial.println(tone_buffer[tone_current_playing_index].duration_ms);
+	// }
 	led_number_of_tick++;
 	tone_number_of_tick++;
 
@@ -202,7 +208,7 @@ ISR(TIMER1_COMPA_vect)
 				tone_current_playing_index = (tone_current_playing_index + 1) % tone_tail;
 			}
 
-			if (tone_buffer[tone_current_playing_index].frequency == 0)
+			if (tone_buffer[tone_current_playing_index].frequency == 0 || tone_count == 0)
 			{
 				noTone(Pin_Buzzer);
 			}
@@ -229,10 +235,20 @@ ISR(TIMER1_COMPA_vect)
 		{
 			led_current_playing_index = (led_current_playing_index + 1) % led_tail;
 		}
-
-		for (int i = 0; i < 8; i++)
+		
+		if (led_count == 0)
 		{
-			digitalWrite(LED_PIN[i], led_buffer[led_current_playing_index].led_sequence & 1 << i);
+			for (int i = 0; i < 8; i++)
+			{
+				digitalWrite(LED_PIN[i], LOW);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				digitalWrite(LED_PIN[i], led_buffer[led_current_playing_index].led_sequence & 1 << i);
+			}
 		}
 		led_number_of_tick = 0;
 		}

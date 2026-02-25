@@ -16,7 +16,7 @@
 
 void setup() {
 
-	library_set_up(REPEAT_MODE, 1, 1, 1);
+	library_set_up(QUEUE_MODE, 1, 1, 1);
 	
 	pinMode(2, OUTPUT);
 	pinMode(4, OUTPUT);
