@@ -183,8 +183,16 @@ ISR(TIMER1_COMPA_vect)
 	// 	Serial.print(" tone_duration_ms=");
 	// 	Serial.println(tone_buffer[tone_current_playing_index].duration_ms);
 	// }
-	led_number_of_tick++;
-	tone_number_of_tick++;
+
+  if (led_count > 0)
+  {
+    led_number_of_tick++;
+  }
+
+  if (tone_count > 0)
+  {
+    tone_number_of_tick++;
+  }
 
 	if (mode == CUSTOM_FUNCTION_MODE)
 	{
