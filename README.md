@@ -1,6 +1,6 @@
 # Arduino Police Car Library
 
-`police_car_library` is an AVR-focused Arduino library for simple police-car style effects:
+`police_car_library` is an AVR-focused Arduino library for simple police-car effects:
 
 - Timed buzzer tone sequences
 - Timed 8-LED pattern sequences
@@ -10,11 +10,11 @@
 ## Supported Targets
 
 - `architectures=avr` (from `library.properties`)
-- Designed around AVR timer registers (`Timer1`/`Timer2`)
+- Designed around AVR timer registers
 
 ## Default Pin Mapping
 
-These globals are defined in the library and can be edited in your sketch (before use) if your wiring is different.
+These globals are defined in the library and can be overridden in your sketch before use:
 
 - `LED_PIN[8] = {10, 9, 8, 7, 6, 5, 4, 2}`
 - `Pin_Motor_1_speed = 3`
@@ -25,8 +25,8 @@ These globals are defined in the library and can be edited in your sketch (befor
 
 ## Core Modes
 
-- `REPEAT_MODE` (`0`): plays queued tone/LED items in a loop.
-- `QUEUE_MODE` (`1`): consumes items once (FIFO-style).
+- `REPEAT_MODE` (`0`): loops through queued tone/LED items.
+- `QUEUE_MODE` (`1`): consumes items once in FIFO order.
 - `CUSTOM_FUNCTION_MODE` (`2`): runs your callback on each timer tick.
 
 ## Quick Start
@@ -34,9 +34,7 @@ These globals are defined in the library and can be edited in your sketch (befor
 1. Include the library and call `library_set_up(...)`.
 2. Configure all used pins with `pinMode(...)`.
 3. Add tone and/or LED sequence items with `add_tone(...)` and `add_led(...)`.
-4. Start timer interrupts with `set_up_timer(index, duration_ms)`.
-
-Example setup order:
+4. Start timer interrupts with `set_up_timer(1, duration_ms)`.
 
 ```cpp
 #include <police_car_library.h>
@@ -63,7 +61,7 @@ void setup() {
   add_led(1,0,0,0,0,0,0,1,200);
   add_led(0,1,0,0,0,0,1,0,200);
 
-  set_up_timer(1, 5); // 5 ms tick using Timer1
+  set_up_timer(1, 5); // 5 ms tick on Timer1
 }
 
 void loop() {}
@@ -82,11 +80,9 @@ void library_set_up(
 );
 ```
 
-- Allocates internal buffers (capacity `70` each for tone and LED).
-- Sets mode and enables/disables buzzer/LED processing.
-- If `debug_mode` is enabled, initializes serial output at `9600`.
-- In `REPEAT_MODE`/`QUEUE_MODE`, debug output is printed with labeled fields:
-  `led_seq=<value> led_duration_ms=<value> uptime_ms=<value> tone_freq_hz=<value> tone_duration_ms=<value>`
+- Allocates internal buffers (capacity `70` each for tones and LEDs).
+- Sets mode and enables/disables buzzer and LED processing.
+- If `debug_mode` is enabled, prints startup info at `9600` baud.
 
 ### Timer Setup
 
@@ -94,9 +90,9 @@ void library_set_up(
 void set_up_timer(int index, int duration_ms);
 ```
 
-- `index == 1`: configures `Timer1`.
-- `index == 2`: configures `Timer2`.
-- `duration_ms` is the ISR tick period used to advance tone/LED timings.
+- `index == 1`: configures `Timer1` compare interrupt.
+- `index == 2`: configures `Timer2` registers.
+- Runtime processing currently happens in `ISR(TIMER1_COMPA_vect)`.
 
 ### Mode Switching
 
@@ -115,7 +111,8 @@ bool add_tone(uint16_t frequency, uint16_t duration_ms);
 ```
 
 - `frequency == 0` means silence (`noTone`).
-- Returns `false` when buffer is full.
+- Returns `false` only when the tone buffer is full.
+- Returns `true` without enqueueing when `duration_ms == 0` or buzzer is disabled.
 
 ```cpp
 bool add_led(
@@ -126,7 +123,8 @@ bool add_led(
 ```
 
 - `LED_1..LED_8` map to `LED_PIN[0..7]`.
-- Returns `false` when buffer is full.
+- Returns `false` only when the LED buffer is full.
+- Returns `true` without enqueueing when `duration_ms == 0` or LED output is disabled.
 
 ### Motor Helper
 
@@ -135,19 +133,17 @@ void Move(int left_speed, int right_speed, int duration_ms);
 ```
 
 - Uses PWM magnitude (`abs(speed)`) and direction pins for each motor.
-- Blocks for `duration_ms` via `delay(...)`.
+- Blocks for `duration_ms` using `delay(...)`.
 
 ## Included Examples
 
 - `examples/Repeating_Mode/Repeating_Mode.ino`
-  - Demonstrates repeating tone + LED sequences.
 - `examples/Queue_Mode/Queue_Mode.ino`
-  - Demonstrates one-time FIFO playback in `QUEUE_MODE`.
 - `examples/Custom_Function_Mode/Custom_Function_Mode.ino`
-  - Demonstrates callback-driven behavior in custom mode.
 
 ## Notes and Limitations
 
-- This library directly configures AVR timer registers; avoid conflicts with other timer-heavy libraries.
-- Callbacks in `CUSTOM_FUNCTION_MODE` run inside an ISR. Keep them short and non-blocking.
-- The library does not call `pinMode(...)` for you.
+- The library directly configures AVR timer registers; avoid conflicts with other timer-heavy libraries.
+- `CUSTOM_FUNCTION_MODE` callbacks run inside an ISR. Keep callbacks short and non-blocking.
+- The library does not configure pin modes for you.
+- Buffer memory is allocated with `malloc` in `library_set_up`; there is no explicit free path.

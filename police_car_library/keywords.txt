@@ -1,30 +1,36 @@
 #######################################
-# Syntax Coloring Map For RobotEffects
+# Syntax Coloring Map For police_car_library
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
+custom_timer_function_callback	KEYWORD1
 tone_item	KEYWORD1
-led_item		KEYWORD1
+led_item	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 library_set_up	KEYWORD2
-set_up_timer		KEYWORD2
+set_up_timer	KEYWORD2
 set_repeat_mode	KEYWORD2
 set_queue_mode	KEYWORD2
-add_tone			KEYWORD2
-add_led			KEYWORD2
-Move				KEYWORD2
+set_custom_function_mode	KEYWORD2
+add_tone	KEYWORD2
+add_led	KEYWORD2
+Move	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 REPEAT_MODE	LITERAL1
-QUEUE_MODE		LITERAL1
-CAPACITY		LITERAL1
-
-ENABLE_BUZZER	LITERAL1
-ENABLE_LED		LITERAL1
+QUEUE_MODE	LITERAL1
+CUSTOM_FUNCTION_MODE	LITERAL1
+CAPACITY	LITERAL1
+LED_PIN	LITERAL1
+Pin_Motor_1_speed	LITERAL1
+Pin_Motor_1_Dir	LITERAL1
+Pin_Motor_2_speed	LITERAL1
+Pin_Motor_2_Dir	LITERAL1
+Pin_Buzzer	LITERAL1

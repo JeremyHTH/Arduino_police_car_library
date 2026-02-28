@@ -134,11 +134,30 @@ bool add_tone(uint16_t frequency, uint16_t duration_ms)
 		return false;
 	}
 
+	bool start_now = false;
 	cli();
+	if (mode == QUEUE_MODE && tone_count == 0)
+	{
+		tone_current_playing_index = tone_head;
+		tone_number_of_tick = 0;
+		start_now = true;
+	}
 	tone_buffer[tone_tail] = {frequency, duration_ms};
 	tone_tail = (uint8_t)((tone_tail + 1) % CAPACITY);
 	tone_count++;
 	sei();
+
+	if (start_now)
+	{
+		if (frequency == 0)
+		{
+			noTone(Pin_Buzzer);
+		}
+		else
+		{
+			tone(Pin_Buzzer, frequency);
+		}
+	}
 
 	return true;
 }
@@ -155,12 +174,28 @@ bool add_led(bool LED_1, bool LED_2, bool LED_3, bool LED_4, bool LED_5 , bool L
 		return false;
 	}
 
+	uint8_t led_sequence = (uint8_t)(0 | (LED_1 ? 1 : 0) << 0 | (LED_2 ? 1 : 0) << 1 | (LED_3 ? 1 : 0) << 2 | (LED_4 ? 1 : 0) << 3 | (LED_5 ? 1 : 0) << 4 | (LED_6 ? 1 : 0) << 5 | (LED_7 ? 1 : 0) << 6 | (LED_8 ? 1 : 0) << 7);
+	bool start_now = false;
 
 	cli();
-	led_buffer[led_tail] = {(0 | (LED_1? 1 : 0) << 0 | (LED_2? 1 : 0)  << 1 | (LED_3? 1 : 0)  << 2 | (LED_4? 1 : 0)  << 3 | (LED_5? 1 : 0)  << 4 | (LED_6? 1 : 0) << 5 | (LED_7? 1 : 0 ) << 6 | (LED_8? 1 : 0 ) << 7), duration_ms};
+	if (mode == QUEUE_MODE && led_count == 0)
+	{
+		led_current_playing_index = led_head;
+		led_number_of_tick = 0;
+		start_now = true;
+	}
+	led_buffer[led_tail] = {led_sequence, duration_ms};
 	led_tail = (uint8_t)((led_tail + 1) % CAPACITY);
 	led_count++;
 	sei();
+
+	if (start_now)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			digitalWrite(LED_PIN[i], led_sequence & (1 << i));
+		}
+	}
 
 	return true;
 }
