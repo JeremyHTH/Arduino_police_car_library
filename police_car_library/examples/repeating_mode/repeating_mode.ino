@@ -17,19 +17,6 @@
 void setup() {
 
 	library_set_up(REPEAT_MODE, 1, 1, 1);
-	
-	pinMode(2, OUTPUT);
-	pinMode(4, OUTPUT);
-	pinMode(5, OUTPUT);
-	pinMode(6, OUTPUT);
-	pinMode(7, OUTPUT);
-	pinMode(8, OUTPUT);
-	pinMode(9, OUTPUT);
-	pinMode(3, OUTPUT);
-	pinMode(11, OUTPUT);
-	pinMode(12, OUTPUT);
-	pinMode(13, OUTPUT);
-	pinMode(A0, OUTPUT);
 
 	add_tone(G4, 300);
 	add_tone(G4, 300);
@@ -78,7 +65,7 @@ void setup() {
 	add_led(1, 0, 0, 0, 0, 0, 0, 1, 500);
 
 
-	set_up_timer(1, 5);
+	set_up_timer(1, 1);
 }
 
 void loop() 

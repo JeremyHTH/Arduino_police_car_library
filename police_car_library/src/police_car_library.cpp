@@ -2,11 +2,11 @@
 
 
 int LED_PIN[8] = {10, 9, 8, 7, 6, 5, 4, 2};
-int Pin_Motor_1_speed = 3;
-int Pin_Motor_1_Dir = 12;
-int Pin_Motor_2_speed = 11;
-int Pin_Motor_2_Dir = 13;
-int Pin_Buzzer = A0; 
+int PIN_MOTOR_1_SPEED = 3;
+int PIN_MOTOR_1_DIR = 12;
+int PIN_MOTOR_2_SPEED = 11;
+int PIN_MOTOR_2_DIR = 13;
+int PIN_BUZZER = A0; 
 
 
 tone_item* tone_buffer = nullptr;
@@ -48,6 +48,7 @@ void set_up_timer(int index, int duration_ms)
 		uint32_t ticks = (F_CPU / 256) * duration_ms / 1000;
 		if (enable_debug)
 		{
+			Serial.print("Timer: 1");
 			Serial.print("duration_ms: ");
 			Serial.print(duration_ms);
 			Serial.print(" ticks: ");
@@ -72,6 +73,7 @@ void set_up_timer(int index, int duration_ms)
 		uint32_t ticks = (F_CPU / 64) * duration_ms / 1000;
 		if (enable_debug)
 		{
+			Serial.print("Timer: 2");
 			Serial.print("duration_ms: ");
 			Serial.print(duration_ms);
 			Serial.print(" ticks: ");
@@ -151,11 +153,11 @@ bool add_tone(uint16_t frequency, uint16_t duration_ms)
 	{
 		if (frequency == 0)
 		{
-			noTone(Pin_Buzzer);
+			noTone(PIN_BUZZER);
 		}
 		else
 		{
-			tone(Pin_Buzzer, frequency);
+			tone(PIN_BUZZER, frequency);
 		}
 	}
 
@@ -203,6 +205,7 @@ bool add_led(bool LED_1, bool LED_2, bool LED_3, bool LED_4, bool LED_5 , bool L
 
 ISR(TIMER1_COMPA_vect) 
 {
+	// Commanded out as it affect the buzzer tone
 	// if (enable_debug && mode != CUSTOM_FUNCTION_MODE)
 	// {
 	// 	Serial.print("led_current_playing_index=");
@@ -253,11 +256,11 @@ ISR(TIMER1_COMPA_vect)
 
 			if (tone_buffer[tone_current_playing_index].frequency == 0 || tone_count == 0)
 			{
-				noTone(Pin_Buzzer);
+				noTone(PIN_BUZZER);
 			}
 			else
 			{
-				tone(Pin_Buzzer, tone_buffer[tone_current_playing_index].frequency);
+				tone(PIN_BUZZER, tone_buffer[tone_current_playing_index].frequency);
 				
 			}
 
@@ -323,29 +326,40 @@ void library_set_up(uint8_t timer_purpose_mode, uint8_t use_buzzer, uint8_t use_
 	enable_led = use_led; 
 	mode = timer_purpose_mode;
 	enable_debug = debug_mode;
+
+	for (int i = 0; i < 8; i++)
+	{
+		pinMode(LED_PIN[i], OUTPUT);
+	}
+
+	pinMode(PIN_MOTOR_1_SPEED, OUTPUT);
+	pinMode(PIN_MOTOR_1_DIR, OUTPUT);
+	pinMode(PIN_MOTOR_2_SPEED, OUTPUT);
+	pinMode(PIN_MOTOR_2_DIR, OUTPUT);
+	pinMode(PIN_BUZZER, OUTPUT);
 }
 
-void Move(int left_speed, int right_speed, int duration_ms)
+void move(int left_speed, int right_speed, int duration_ms)
 {
-	analogWrite(Pin_Motor_1_speed, abs(left_speed));
-	analogWrite(Pin_Motor_2_speed, abs(right_speed));
+	analogWrite(PIN_MOTOR_1_SPEED, abs(left_speed));
+	analogWrite(PIN_MOTOR_2_SPEED, abs(right_speed));
 
 	if (left_speed < 0)
 	{
-		digitalWrite(Pin_Motor_1_Dir, HIGH);
+		digitalWrite(PIN_MOTOR_1_DIR, HIGH);
 	}
 	else 
 	{
-		digitalWrite(Pin_Motor_1_Dir, LOW);
+		digitalWrite(PIN_MOTOR_1_DIR, LOW);
 	}
 
 	if (right_speed < 0)
 	{
-		digitalWrite(Pin_Motor_2_Dir, LOW);
+		digitalWrite(PIN_MOTOR_2_DIR, LOW);
 	}
 	else 
 	{
-		digitalWrite(Pin_Motor_2_Dir, HIGH);
+		digitalWrite(PIN_MOTOR_2_DIR, HIGH);
 	}
 
 	delay(duration_ms);
